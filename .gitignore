@@ -1,0 +1,3 @@
+# typer ignore files
+typer/typer
+typer/__pycache__
