@@ -6,11 +6,20 @@ class Typer:
     def __init__(self) -> None:
         self.commands: dict = {}
 
-    def command(self, func: Callable) -> Callable:
-        """Register a command"""
-        self.commands[func.__name__] = func
+    def command(self, **options):
+        """Decorator to add a new command to the CLI."""
+        def wrapper(func):
+            name = options.get("name", func.__name__)
+            self.commands[name] = func
 
-        return func
+            if options.get("aliases"):
+                for alias in options.get("aliases"):
+                    self.commands[alias] = func
+
+            if options.get("default", False):
+                self.default_command = func
+            return func
+        return wrapper
 
     def help(self, name: str = None) -> None:
         print("Help")
@@ -58,12 +67,15 @@ class Typer:
                         break
 
             i += 1
-        print(parsed_args)
         return parsed_args
 
     def __call__(self) -> None:
         if len(sys.argv) == 1:
-            self.help()
+            try:
+                self.default_command()
+            except AttributeError:
+                print("No default command found")
+                self.help()
         else:
             command = sys.argv[1]
 
