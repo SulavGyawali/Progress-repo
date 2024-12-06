@@ -62,16 +62,40 @@ class Typer:
                 parsed_args[boolean_flags[arg]] = True
             else:
                 for name, param in params.items():
-                    if parsed_args[name] == param.default:
-                        parsed_args[name] = hints.get(name, str)(arg)
-                        break
+                    if param.annotation != bool:
+                        if parsed_args[name] == param.default:
+                            parsed_args[name] = hints.get(name, str)(arg)
+                            break
 
             i += 1
         return parsed_args
+    
+    def check_params(self, func: Callable, args: list) -> None:
+        sig = inspect.signature(func)
+        params = sig.parameters
+        for name, param in params.items():
+            if name in args:
+                if not isinstance(args[name], param.annotation) and param.default is not None:
+                    self.raise_error(f"Parameter {name} should be of type {param.annotation}")
+            else:
+                if param.default == param.empty:
+                    if name not in args:
+                        self.raise_error(f"Parameter {name} is required")
+                else:
+                    if name not in args:
+                        args[name] = param.default
+            
+                
+    def raise_error(self, message: str) -> None:
+        self.echo(f"Error: {message}")
+        sys.exit(1)
+            
+        
 
     def __call__(self) -> None:
         if len(sys.argv) == 1:
             try:
+                self.check_params(self.default_command, {})
                 self.default_command()
             except AttributeError:
                 print("No default command found")
@@ -94,6 +118,7 @@ class Typer:
                         args = sys.argv[2:]
                         try: 
                             parsed_args = self.parse_args(func, args)
+                            self.check_params(func, parsed_args)
                             func(**parsed_args)
                         except TypeError as e:
                             print(f"Error: {e}")

@@ -16,7 +16,7 @@ def hello(name: str = None):
 
 
 @app.command()
-def goodbye(name: str = None, formal: bool = False, test : bool = False):
+def goodbye(name: str = None, formal: bool = False):
     """
     Say goodbye to someone
     Args:
@@ -25,9 +25,9 @@ def goodbye(name: str = None, formal: bool = False, test : bool = False):
     """
     if name:
         if formal:
-            app.echo(f"Goodbye Ms. {name}. Have a good day.")
+            app.echo(f"Goodbye {name.capitalize()}. Have a good day.")
         else:
-            app.echo(f"Bye {name}!")
+            app.echo(f"Bye {name.capitalize()}!")
     else:
         app.echo("Goodbye!")
 
