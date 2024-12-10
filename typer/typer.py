@@ -5,6 +5,7 @@ import sys
 class Typer:
     def __init__(self) -> None:
         self.commands: dict = {}
+        self.dry_run = False
 
     def command(self, **options):
         """Decorator to add a new command to the CLI."""
@@ -53,6 +54,10 @@ class Typer:
             if hints.get(name) == bool
         }
 
+        if "--dry-run" in args:
+            self.dry_run = True
+            args.remove("--dry-run")
+
         parsed_args = {name: param.default for name, param in params.items()}
 
         i = 0
@@ -88,9 +93,12 @@ class Typer:
                 
     def raise_error(self, message: str) -> None:
         self.echo(f"Error: {message}")
+        self.help()
         sys.exit(1)
-            
-        
+    
+    def dry_run_func(self, func: Callable, args: dict) -> None:
+        self.echo(f"Running {func.__name__} with args {args}")
+
 
     def __call__(self) -> None:
         if len(sys.argv) == 1:
@@ -119,7 +127,10 @@ class Typer:
                         try: 
                             parsed_args = self.parse_args(func, args)
                             self.check_params(func, parsed_args)
-                            func(**parsed_args)
+                            if self.dry_run:
+                                self.dry_run_func(func, parsed_args)
+                            else:
+                                func(**parsed_args)
                         except TypeError as e:
                             print(f"Error: {e}")
                             self.help(command)

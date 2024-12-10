@@ -2,3 +2,6 @@
 typer/typer
 typer/__pycache__
 typer/thought_process.txt
+
+
+.gitignore
