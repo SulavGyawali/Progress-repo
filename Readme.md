@@ -11,3 +11,6 @@ Today was a slow day i didnt have much idea on what to add on my app so i though
 
 #Day 3
 Today i added support for argument checking, i.e. check if the number of passed arguments match the number of arguments required by the function and check if the passed argument is of same type as required by the function. While doing this i handled the boolean flags seperately and found out a bug in the code that i have fixed now.
+
+#Day 4
+Today i added support for dry run feature. It allows users to dry run their command showing what the command does what arguments it takes and what to expect from the command without executing the logic of the command.
